@@ -1,7 +1,50 @@
+//Sat Aug 03 2024 06:45:58 GMT+0000 (Coordinated Universal Time)
+//Base:https://github.com/echo094/decode-js
+//Modify:https://github.com/smallfawn/decode_action
+/*
+new Env('阿里云社区');
+@Author: Leiyiyan
+@Date: 2024-07-23 13:33
+
+@Description:
+阿里云服务 每日签到、点赞、分享、评论、收藏，积分可兑换实物
+
+获取 Cookie 方式: 阿里云 APP - 首页 - 积分商城
+
+变量名: aliyunWeb_data、aliyunWeb_time(时间)、aliyunWeb_scene(场景：true/false)、aliyunWeb_stock(库存：true/false)
+
+注意事项 - 因文章评论需要审核，所以请按推荐时间执行: 
+   12点前执行一次: 签到、点赞、收藏、分享、评论；
+   12点后执行一次: 积分收取、取消点赞、取消收藏；
+   如需自定义时间，请修改 aliyunWeb_time 变量值，取值范围为 1-23 之间的整数
+------------------------------------------------------------------------------
+BoxJs订阅地址: 
+https://raw.githubusercontent.com/leiyiyan/resource/main/subscribe/leiyiyan.boxjs.json
+
+[Script]
+http-response ^https?:\/\/developer\.aliyun\.com\/developer\/api\/my\/user\/getUser script-path=https://raw.githubusercontent.com/leiyiyan/resource/main/script/aliyun_web/aliyun_web.js, requires-body=true, timeout=60, tag=阿里云Web Cookie
+cron "0 7,13 * * *" script-path=https://raw.githubusercontent.com/leiyiyan/resource/main/script/aliyun_web/aliyun_web.js, tag=阿里云社区日常任务
+
+[MITM]
+hostname = developer.aliyun.com
+
+====================================
+⚠️【免责声明】
+------------------------------------------
+1、此脚本仅用于学习研究，不保证其合法性、准确性、有效性，请根据情况自行判断，本人对此不承担任何保证责任。
+2、由于此脚本仅用于学习研究，您必须在下载后 24 小时内将所有内容从您的计算机或手机或任何存储设备中完全删除，若违反规定引起任何事件本人对此均不负责。
+3、请勿将此脚本用于任何商业或非法目的，若违反规定请自行对此负责。
+4、此脚本涉及应用与本人无关，本人对因此引起的任何隐私泄漏或其他后果不承担任何责任。
+5、本人对任何脚本引发的问题概不负责，包括但不限于由脚本错误引起的任何损失和损害。
+6、如果任何单位或个人认为此脚本可能涉嫌侵犯其权利，应及时通知并提供身份证明，所有权证明，我们将在收到认证文件确认后删除此脚本。
+7、所有直接或间接使用、查看此脚本的人均应该仔细阅读此声明。本人保留随时更改或补充此声明的权利。一旦您使用或复制了此脚本，即视为您已接受此免责声明。
+ */
+
+// env.js 全局
 //Sat Aug 03 2024 04:30:41 GMT+0000 (Coordinated Universal Time)
 //Base:https://github.com/echo094/decode-js
 //Modify:https://github.com/smallfawn/decode_action
-const $ = new Env("阿里云社区"),
+const $ = new Env("\u963F\u91CC\u4E91\u793E\u533A"),
   ckName = "aliyunWeb_data",
   controlTime = ($.isNode() ? process.env.aliyunWeb_time : $.getdata("aliyunWeb_time")) || "12",
   controlScene = ($.isNode() ? process.env.aliyunWeb_scene : $.getdata("aliyunWeb_scene")) || "false",
@@ -15,61 +58,61 @@ let userList = [],
   userCount = 0;
 const taskGroup = [{
   code: "",
-  name: "我的社区"
+  name: "\u6211\u7684\u793E\u533A"
 }, {
   code: "ecs",
-  name: "弹性计算"
+  name: "\u5F39\u6027\u8BA1\u7B97"
 }, {
   code: "computenest",
-  name: "计算巢"
+  name: "\u8BA1\u7B97\u5DE2"
 }, {
   code: "yitian",
-  name: "倚天"
+  name: "\u501A\u5929"
 }, {
   code: "wuying",
-  name: "无影"
+  name: "\u65E0\u5F71"
 }, {
   code: "cloudnative",
-  name: "云原生"
+  name: "\u4E91\u539F\u751F"
 }, {
   code: "storage",
-  name: "云存储"
+  name: "\u4E91\u5B58\u50A8"
 }, {
   code: "luoshen",
-  name: "飞天洛神云网络"
+  name: "\u98DE\u5929\u6D1B\u795E\u4E91\u7F51\u7EDC"
 }, {
   code: "database",
-  name: "数据库"
+  name: "\u6570\u636E\u5E93"
 }, {
   code: "polardb",
-  name: "PolarDB开源"
+  name: "PolarDB\u5F00\u6E90"
 }, {
   code: "bigdata",
-  name: "大数据与机器学习"
+  name: "\u5927\u6570\u636E\u4E0E\u673A\u5668\u5B66\u4E60"
 }, {
   code: "modelscope",
-  name: "ModelScope模型即服务"
+  name: "ModelScope\u6A21\u578B\u5373\u670D\u52A1"
 }, {
   code: "viapi",
-  name: "视觉智能"
+  name: "\u89C6\u89C9\u667A\u80FD"
 }, {
   code: "dns",
-  name: "域名解析DNS"
+  name: "\u57DF\u540D\u89E3\u6790DNS"
 }, {
   code: "iot",
-  name: "物联网"
+  name: "\u7269\u8054\u7F51"
 }, {
   code: "devops",
-  name: "云效DevOps"
+  name: "\u4E91\u6548DevOps"
 }, {
   code: "aliyun_linux",
-  name: "龙蜥操作系统"
+  name: "\u9F99\u8725\u64CD\u4F5C\u7CFB\u7EDF"
 }, {
   code: "modelstudio",
-  name: "百炼大模型"
+  name: "\u767E\u70BC\u5927\u6A21\u578B"
 }, {
   code: "tongyi",
-  name: "通义大模型"
+  name: "\u901A\u4E49\u5927\u6A21\u578B"
 }];
 $.is_debug = ($.isNode() ? process.env.IS_DEDUG : $.getdata("is_debug")) || "false";
 $.notifyList = [];
@@ -82,10 +125,10 @@ let pendingScore = 0,
   ip = "";
 async function main() {
   try {
-    $.log("\n================== 任务 ==================\n");
+    $.log("\n================== \u4EFB\u52A1 ==================\n");
     for (let _0xd81f96 of userList) {
-      console.log("🔷账号" + _0xd81f96.index + " >> Start work");
-      console.log("随机延迟" + _0xd81f96.getRandomTime() + "秒");
+      console.log("\uD83D\uDD37\u8D26\u53F7" + _0xd81f96.index + " >> Start work");
+      console.log("\u968F\u673A\u5EF6\u8FDF" + _0xd81f96.getRandomTime() + "\u79D2");
       const _0x9c1899 = Date.now();
       userScore = (await _0xd81f96.interactData()) ?? {};
       if (_0xd81f96.ckStatus) {
@@ -126,8 +169,8 @@ async function main() {
           JSON.parse(controlScene) && (await _0xd81f96.doScene(), await $.wait(_0xd81f96.getRandomTime()));
           JSON.parse(controlStock) && (await _0xd81f96.getGroupItems());
           pendingScore = await _0xd81f96.getUserTotalPendingScore();
-          $.title = "获得待领取积分: " + pendingScore;
-          DoubleLog("🎉 当前积分: " + userScore + ", 待领取积分: " + pendingScore);
+          $.title = "\u83B7\u5F97\u5F85\u9886\u53D6\u79EF\u5206: " + pendingScore;
+          DoubleLog("\uD83C\uDF89 \u5F53\u524D\u79EF\u5206: " + userScore + ", \u5F85\u9886\u53D6\u79EF\u5206: " + pendingScore);
         } else {
           for (let _0x5f20ca of taskGroup) {
             const _0x6c1176 = await _0xd81f96.getUserSpaceSignInDetail(_0x5f20ca.code),
@@ -152,11 +195,11 @@ async function main() {
           }
           JSON.parse(controlStock) && (await _0xd81f96.getGroupItems());
           let _0x18099b = (await _0xd81f96.interactData()) ?? {};
-          $.title = "本次运行共获得" + (pendingScore || 0) + "积分";
-          DoubleLog("🎉 领取积分: " + pendingScore + ", 当前积分: " + _0x18099b);
+          $.title = "\u672C\u6B21\u8FD0\u884C\u5171\u83B7\u5F97" + (pendingScore || 0) + "\u79EF\u5206";
+          DoubleLog("\uD83C\uDF89 \u9886\u53D6\u79EF\u5206: " + pendingScore + ", \u5F53\u524D\u79EF\u5206: " + _0x18099b);
         }
       } else {
-        $.notifyMsg.push("⛔️ 账号" + (_0xd81f96.userName || _0xd81f96.index) + " >> Check ck error!");
+        $.notifyMsg.push("\u26D4\uFE0F \u8D26\u53F7" + (_0xd81f96.userName || _0xd81f96.index) + " >> Check ck error!");
       }
       $.notifyList.push({
         id: _0xd81f96.index,
@@ -166,8 +209,8 @@ async function main() {
       $.notifyMsg = [];
     }
   } catch (_0x35bd44) {
-    $.log("⛔️ main run error => " + _0x35bd44);
-    throw new Error("⛔️ main run error => " + _0x35bd44);
+    $.log("\u26D4\uFE0F main run error => " + _0x35bd44);
+    throw new Error("\u26D4\uFE0F main run error => " + _0x35bd44);
   }
 }
 class UserInfo {
@@ -203,12 +246,12 @@ class UserInfo {
         });
         debug(_0x1e24b7, _0x4cb92a?.["url"]?.["replace"](/\/+$/, "")["substring"](_0x4cb92a?.["url"]?.["lastIndexOf"]("/") + 1));
         if (_0x1e24b7?.["code"] == 40001) {
-          throw new Error(_0x1e24b7?.["message"] || "用户需要去登录");
+          throw new Error(_0x1e24b7?.["message"] || "\u7528\u6237\u9700\u8981\u53BB\u767B\u5F55");
         }
         return _0x1e24b7;
       } catch (_0x4ff423) {
         this.ckStatus = false;
-        $.log("⛔️ 请求发起失败！" + _0x4ff423);
+        $.log("\u26D4\uFE0F \u8BF7\u6C42\u53D1\u8D77\u5931\u8D25\uFF01" + _0x4ff423);
       }
     };
   }
@@ -221,7 +264,7 @@ class UserInfo {
       await this.fetch(_0x4bdfb4);
     } catch (_0x2c4c25) {
       this.ckStatus = false;
-      $.log("⛔️ 获取签到任务列表失败! " + _0x2c4c25);
+      $.log("\u26D4\uFE0F \u83B7\u53D6\u7B7E\u5230\u4EFB\u52A1\u5217\u8868\u5931\u8D25! " + _0x2c4c25);
     }
   }
   async assessSignInBonusQualification(_0x25ef27, _0x5d9fca) {
@@ -240,7 +283,7 @@ class UserInfo {
       return _0x75b850?.["data"];
     } catch (_0x1faec0) {
       this.ckStatus = false;
-      $.log("⛔️ 查询领奖条件失败! " + _0x1faec0);
+      $.log("\u26D4\uFE0F \u67E5\u8BE2\u9886\u5956\u6761\u4EF6\u5931\u8D25! " + _0x1faec0);
     }
   }
   async receiveSignInBonus(_0x17a014, _0x392c16) {
@@ -256,13 +299,13 @@ class UserInfo {
       let _0x5d5ece = await this.fetch(_0x2d1840);
       if (_0x5d5ece?.["code"] == "200") {
         const _0x515e27 = _0x5d5ece?.["data"] || 0;
-        $.log("✅ 抽奖 - " + (_0x392c16 || "default") + ": 获得 " + _0x515e27 + " 积分");
+        $.log("\u2705 \u62BD\u5956 - " + (_0x392c16 || "default") + ": \u83B7\u5F97 " + _0x515e27 + " \u79EF\u5206");
       } else {
-        $.log("⛔️ 抽奖 - " + (_0x392c16 || "default") + ": " + _0x5d5ece?.["message"]);
+        $.log("\u26D4\uFE0F \u62BD\u5956 - " + (_0x392c16 || "default") + ": " + _0x5d5ece?.["message"]);
       }
     } catch (_0x5d8e05) {
       this.ckStatus = false;
-      $.log("⛔️ 抽奖失败! " + _0x5d8e05);
+      $.log("\u26D4\uFE0F \u62BD\u5956\u5931\u8D25! " + _0x5d8e05);
     }
   }
   async getUserSpaceSignInDetail(_0x379f77) {
@@ -279,7 +322,7 @@ class UserInfo {
       return _0x47fee5;
     } catch (_0x232fc0) {
       this.ckStatus = false;
-      $.log("⛔️ 获取签到任务列表失败! " + _0x232fc0);
+      $.log("\u26D4\uFE0F \u83B7\u53D6\u7B7E\u5230\u4EFB\u52A1\u5217\u8868\u5931\u8D25! " + _0x232fc0);
     }
   }
   async getTasks(_0x42e37c) {
@@ -308,12 +351,12 @@ class UserInfo {
       return _0x12c288;
     } catch (_0x2703c8) {
       this.ckStatus = false;
-      $.log("⛔️ 获取签到任务列表失败! " + _0x2703c8);
+      $.log("\u26D4\uFE0F \u83B7\u53D6\u7B7E\u5230\u4EFB\u52A1\u5217\u8868\u5931\u8D25! " + _0x2703c8);
     }
   }
   async signin(_0x4d9795, _0x3a18ef) {
     if (!_0x4d9795) {
-      $.log("✅ 签到 - " + (_0x3a18ef || "default") + ": 该社区无签到任务");
+      $.log("\u2705 \u7B7E\u5230 - " + (_0x3a18ef || "default") + ": \u8BE5\u793E\u533A\u65E0\u7B7E\u5230\u4EFB\u52A1");
       return;
     }
     try {
@@ -324,10 +367,10 @@ class UserInfo {
         body: _0x4d9795
       };
       let _0xdfcf1 = await this.fetch(_0x34c6c);
-      $.log("✅ 签到 - " + (_0x3a18ef || "default") + ": " + _0xdfcf1?.["message"]);
+      $.log("\u2705 \u7B7E\u5230 - " + (_0x3a18ef || "default") + ": " + _0xdfcf1?.["message"]);
     } catch (_0x467fd3) {
       this.ckStatus = false;
-      $.log("⛔️ 签到失败! " + _0x467fd3);
+      $.log("\u26D4\uFE0F \u7B7E\u5230\u5931\u8D25! " + _0x467fd3);
     }
   }
   async getArticles() {
@@ -351,11 +394,11 @@ class UserInfo {
           id: _0x1a2cb8,
           name: _0x54e668
         } = _0x25163a;
-      $.log("✅ 随机获取文章id: " + _0x1a2cb8 + ", 标题: " + _0x54e668);
+      $.log("\u2705 \u968F\u673A\u83B7\u53D6\u6587\u7AE0id: " + _0x1a2cb8 + ", \u6807\u9898: " + _0x54e668);
       return _0x1a2cb8;
     } catch (_0x5e3fcd) {
       this.ckStatus = false;
-      $.log("⛔️ 获取文章列表失败! " + _0x5e3fcd);
+      $.log("\u26D4\uFE0F \u83B7\u53D6\u6587\u7AE0\u5217\u8868\u5931\u8D25! " + _0x5e3fcd);
     }
   }
   async getEbooks() {
@@ -379,11 +422,11 @@ class UserInfo {
           id: _0x768906,
           name: _0x4d9e79
         } = _0x2b0a68;
-      $.log("✅ 随机电子书id: " + _0x768906 + ", 标题: " + _0x4d9e79);
+      $.log("\u2705 \u968F\u673A\u7535\u5B50\u4E66id: " + _0x768906 + ", \u6807\u9898: " + _0x4d9e79);
       return _0x768906;
     } catch (_0x3ba18e) {
       this.ckStatus = false;
-      $.log("⛔️ 获取电子书列表失败! " + _0x3ba18e);
+      $.log("\u26D4\uFE0F \u83B7\u53D6\u7535\u5B50\u4E66\u5217\u8868\u5931\u8D25! " + _0x3ba18e);
     }
   }
   async getAsks() {
@@ -409,13 +452,13 @@ class UserInfo {
           id: _0x3d0ce6,
           name: _0x572602
         } = _0x5a4f4e;
-        $.log("✅ 随机获取问答id: " + _0x3d0ce6 + ", 标题: " + _0x572602);
+        $.log("\u2705 \u968F\u673A\u83B7\u53D6\u95EE\u7B54id: " + _0x3d0ce6 + ", \u6807\u9898: " + _0x572602);
         return _0x5a4f4e;
       }
       return null;
     } catch (_0xfee64a) {
       this.ckStatus = false;
-      $.log("⛔️ 获取问答列表失败! " + _0xfee64a);
+      $.log("\u26D4\uFE0F \u83B7\u53D6\u95EE\u7B54\u5217\u8868\u5931\u8D25! " + _0xfee64a);
     }
   }
   async getAskDetail(_0x29e29a) {
@@ -437,13 +480,13 @@ class UserInfo {
         const {
           id: _0x2862cd
         } = _0x1229f4;
-        $.log("✅ 随机获取问题问答id: " + _0x2862cd);
+        $.log("\u2705 \u968F\u673A\u83B7\u53D6\u95EE\u9898\u95EE\u7B54id: " + _0x2862cd);
         return _0x2862cd;
       }
       return null;
     } catch (_0x2d7574) {
       this.ckStatus = false;
-      $.log("⛔️ 随机获取问题问答失败! " + _0x2d7574);
+      $.log("\u26D4\uFE0F \u968F\u673A\u83B7\u53D6\u95EE\u9898\u95EE\u7B54\u5931\u8D25! " + _0x2d7574);
     }
   }
   async likeOrNotLike(_0x394dde, _0x5a5176, _0x466603) {
@@ -461,20 +504,20 @@ class UserInfo {
         }
       };
       await this.fetch(_0x2ebf25);
-      let _0x1acedc = "文章" + (_0x466603 === 1 ? "取消" : "");
+      let _0x1acedc = "\u6587\u7AE0" + (_0x466603 === 1 ? "\u53D6\u6D88" : "");
       if (_0x5a5176 === "aliyun-public-like") {
-        _0x1acedc += "点赞";
+        _0x1acedc += "\u70B9\u8D5E";
       } else {
         if (_0x5a5176 === "aliyun-public-favorite") {
-          _0x1acedc += "收藏";
+          _0x1acedc += "\u6536\u85CF";
         } else {
-          _0x5a5176 === "aliyun-public-share" && (_0x1acedc += "分享");
+          _0x5a5176 === "aliyun-public-share" && (_0x1acedc += "\u5206\u4EAB");
         }
       }
-      $.log("✅ " + _0x1acedc + "成功: " + _0x394dde);
+      $.log("\u2705 " + _0x1acedc + "\u6210\u529F: " + _0x394dde);
     } catch (_0x2bbd6f) {
       this.ckStatus = false;
-      $.log("⛔️ " + taskType + "失败! " + _0x2bbd6f);
+      $.log("\u26D4\uFE0F " + taskType + "\u5931\u8D25! " + _0x2bbd6f);
     }
   }
   async getCsrfToken(_0x55fe01, _0x5ee7dd) {
@@ -492,7 +535,7 @@ class UserInfo {
       return _0x14eeac?.["token"];
     } catch (_0x468c79) {
       this.ckStatus = false;
-      $.log("⛔️ 获取 csrf 失败! " + _0x468c79);
+      $.log("\u26D4\uFE0F \u83B7\u53D6 csrf \u5931\u8D25! " + _0x468c79);
     }
   }
   async voteAnswer(_0x1cb48f, _0x174446, _0xba390, _0x2e0c2d) {
@@ -515,10 +558,10 @@ class UserInfo {
         }
       };
       await this.fetch(_0x415f68);
-      $.log("✅ 回答点赞: " + _0x1cb48f + "-" + _0x174446);
+      $.log("\u2705 \u56DE\u7B54\u70B9\u8D5E: " + _0x1cb48f + "-" + _0x174446);
     } catch (_0x4bb2ca) {
       this.ckStatus = false;
-      $.log("⛔️ 回答点赞失败! " + _0x4bb2ca);
+      $.log("\u26D4\uFE0F \u56DE\u7B54\u70B9\u8D5E\u5931\u8D25! " + _0x4bb2ca);
     }
   }
   async addBookComment(_0x3fa91c, _0x2e589b) {
@@ -538,14 +581,14 @@ class UserInfo {
           body: {
             eBookId: _0x3fa91c,
             score: 10,
-            content: "很棒的一本书"
+            content: "\u5F88\u68D2\u7684\u4E00\u672C\u4E66"
           }
         },
         _0x263162 = await this.fetch(_0x184a6d);
-      _0x263162?.["code"] == "200" ? $.log("✅ 评价电子书: " + _0x3fa91c) : $.log("⛔️ 评价电子书失败! " + _0x263162?.["message"]);
+      _0x263162?.["code"] == "200" ? $.log("\u2705 \u8BC4\u4EF7\u7535\u5B50\u4E66: " + _0x3fa91c) : $.log("\u26D4\uFE0F \u8BC4\u4EF7\u7535\u5B50\u4E66\u5931\u8D25! " + _0x263162?.["message"]);
     } catch (_0x9f49b0) {
       this.ckStatus = false;
-      $.log("⛔️ 评价电子书失败! " + _0x9f49b0);
+      $.log("\u26D4\uFE0F \u8BC4\u4EF7\u7535\u5B50\u4E66\u5931\u8D25! " + _0x9f49b0);
     }
   }
   async getFavors() {
@@ -564,13 +607,13 @@ class UserInfo {
           list: _0x300a5a
         } = _0x35cdd4?.["data"];
       if (_0x300a5a.length) {
-        $.log("✅ 开始取消文章的点赞与收藏记录");
+        $.log("\u2705 \u5F00\u59CB\u53D6\u6D88\u6587\u7AE0\u7684\u70B9\u8D5E\u4E0E\u6536\u85CF\u8BB0\u5F55");
         return _0x300a5a;
       }
       return [];
     } catch (_0x2be402) {
       this.ckStatus = false;
-      $.log("⛔️ " + (type === "aliyun-public-like" ? "文章点赞" : "文章收藏") + "失败! " + _0x2be402);
+      $.log("\u26D4\uFE0F " + (type === "aliyun-public-like" ? "\u6587\u7AE0\u70B9\u8D5E" : "\u6587\u7AE0\u6536\u85CF") + "\u5931\u8D25! " + _0x2be402);
     }
   }
   async addComment(_0x2be17b) {
@@ -579,7 +622,7 @@ class UserInfo {
         url: "https://ucc.aliyun.com/uccPagingComponent/addComment",
         type: "get",
         params: {
-          content: encodeURIComponent("感谢博主的分享"),
+          content: encodeURIComponent("\u611F\u8C22\u535A\u4E3B\u7684\u5206\u4EAB"),
           objectId: _0x2be17b,
           bizCategory: "yq-comment-type-article",
           commentType: 0,
@@ -590,10 +633,10 @@ class UserInfo {
         }
       };
       await this.fetch(_0x530eef);
-      $.log("✅ 文章评论: " + _0x2be17b);
+      $.log("\u2705 \u6587\u7AE0\u8BC4\u8BBA: " + _0x2be17b);
     } catch (_0x11b439) {
       this.ckStatus = false;
-      $.log("⛔️ 文章点赞失败! " + _0x11b439);
+      $.log("\u26D4\uFE0F \u6587\u7AE0\u70B9\u8D5E\u5931\u8D25! " + _0x11b439);
     }
   }
   async doScene() {
@@ -629,13 +672,13 @@ class UserInfo {
       if (_0x48ff47.length) {
         const _0x495539 = _0x48ff47[Math.floor(Math.random() * _0x48ff47.length)];
         sceneId = _0x495539?.["id"];
-        $.log("✅ 获取场景: " + _0x495539.name + "[" + sceneId + "]");
+        $.log("\u2705 \u83B7\u53D6\u573A\u666F: " + _0x495539.name + "[" + sceneId + "]");
       } else {
-        $.log("⛔️ 获取场景失败! " + e);
+        $.log("\u26D4\uFE0F \u83B7\u53D6\u573A\u666F\u5931\u8D25! " + e);
       }
     } catch (_0x555ee2) {
       this.ckStatus = false;
-      $.log("⛔️ 获取场景失败! " + _0x555ee2);
+      $.log("\u26D4\uFE0F \u83B7\u53D6\u573A\u666F\u5931\u8D25! " + _0x555ee2);
     }
   }
   async getSceneDetailPageInfoById() {
@@ -654,10 +697,10 @@ class UserInfo {
         },
         _0x4642e4 = await this.fetch(_0x196727),
         _0x5a4de4 = _0x4642e4?.["data"]?.["developerAdcExperienceStatusVO"]?.["buttonCode"];
-      return _0x5a4de4 ? _0x5a4de4 === "1" ? ($.log("✅ 确认场景状态: " + _0x4642e4?.["data"]?.["id"]), _0x4642e4?.["data"]?.["id"]) : ($.log("⛔️ 确认场景状态: " + _0x4642e4?.["data"]?.["id"] + " 已完成，将重新获取场景"), null) : ($.log("⛔️ 确认场景状态: " + _0x4642e4?.["data"]?.["id"] + " 状态异常，将重新获取场景"), null);
+      return _0x5a4de4 ? _0x5a4de4 === "1" ? ($.log("\u2705 \u786E\u8BA4\u573A\u666F\u72B6\u6001: " + _0x4642e4?.["data"]?.["id"]), _0x4642e4?.["data"]?.["id"]) : ($.log("\u26D4\uFE0F \u786E\u8BA4\u573A\u666F\u72B6\u6001: " + _0x4642e4?.["data"]?.["id"] + " \u5DF2\u5B8C\u6210\uFF0C\u5C06\u91CD\u65B0\u83B7\u53D6\u573A\u666F"), null) : ($.log("\u26D4\uFE0F \u786E\u8BA4\u573A\u666F\u72B6\u6001: " + _0x4642e4?.["data"]?.["id"] + " \u72B6\u6001\u5F02\u5E38\uFF0C\u5C06\u91CD\u65B0\u83B7\u53D6\u573A\u666F"), null);
     } catch (_0x789f77) {
       this.ckStatus = false;
-      $.log("⛔️ 确认场景状态失败! " + _0x789f77);
+      $.log("\u26D4\uFE0F \u786E\u8BA4\u573A\u666F\u72B6\u6001\u5931\u8D25! " + _0x789f77);
     }
   }
   async getSceneStartPageInfoById() {
@@ -678,10 +721,10 @@ class UserInfo {
       ip = _0x4681ea?.["data"]?.["ip"];
       _0x4681ea?.["data"]?.["resourceFrom"]["indexOf"]("1") > -1 ? resourceFrom = "1" : resourceFrom = "2";
       _0x4681ea?.["data"]?.["resourceCardInfoDTOList"]["length"] && (sectionId = _0x4681ea?.["data"]?.["resourceCardInfoDTOList"][0]?.["id"]);
-      $.log("✅ 获取场景初始化信息: " + sceneId);
+      $.log("\u2705 \u83B7\u53D6\u573A\u666F\u521D\u59CB\u5316\u4FE1\u606F: " + sceneId);
     } catch (_0x529931) {
       this.ckStatus = false;
-      $.log("⛔️ 获取场景初始化信息失败! " + _0x529931);
+      $.log("\u26D4\uFE0F \u83B7\u53D6\u573A\u666F\u521D\u59CB\u5316\u4FE1\u606F\u5931\u8D25! " + _0x529931);
     }
   }
   async startSceneById(_0x5301ff) {
@@ -711,10 +754,10 @@ class UserInfo {
           code: _0xc5adcc,
           message: _0x24c2ea
         } = _0x102152;
-      console.log((_0xc5adcc === "200" ? "✅" : "⛔️") + " 开始场景: " + sceneId + ", " + _0x24c2ea);
+      console.log((_0xc5adcc === "200" ? "\u2705" : "\u26D4\uFE0F") + " \u5F00\u59CB\u573A\u666F: " + sceneId + ", " + _0x24c2ea);
     } catch (_0x2fa9cd) {
       this.ckStatus = false;
-      $.log("⛔️ 开始场景失败! " + _0x2fa9cd);
+      $.log("\u26D4\uFE0F \u5F00\u59CB\u573A\u666F\u5931\u8D25! " + _0x2fa9cd);
     }
   }
   async closeSceneById(_0x43f819) {
@@ -744,10 +787,10 @@ class UserInfo {
           code: _0x481136,
           message: _0x2ed700
         } = _0x4564b1;
-      console.log((_0x481136 === "200" ? "✅" : "⛔️") + " 结束场景: " + sceneId + ", " + _0x2ed700);
+      console.log((_0x481136 === "200" ? "\u2705" : "\u26D4\uFE0F") + " \u7ED3\u675F\u573A\u666F: " + sceneId + ", " + _0x2ed700);
     } catch (_0x46b385) {
       this.ckStatus = false;
-      $.log("⛔️ 结束场景失败! " + _0x46b385);
+      $.log("\u26D4\uFE0F \u7ED3\u675F\u573A\u666F\u5931\u8D25! " + _0x46b385);
     }
   }
   async createResourceById(_0x4439cd) {
@@ -774,10 +817,10 @@ class UserInfo {
           }
         },
         _0x2655b0 = await this.fetch(_0x3b123e);
-      _0x2655b0?.["data"] && console.log("✅ 开始创建场景资源: " + sceneId);
+      _0x2655b0?.["data"] && console.log("\u2705 \u5F00\u59CB\u521B\u5EFA\u573A\u666F\u8D44\u6E90: " + sceneId);
     } catch (_0x18f508) {
       this.ckStatus = false;
-      $.log("⛔️ 创建场景资源失败! " + _0x18f508);
+      $.log("\u26D4\uFE0F \u521B\u5EFA\u573A\u666F\u8D44\u6E90\u5931\u8D25! " + _0x18f508);
     }
   }
   async getResourceCardInfoById() {
@@ -805,13 +848,13 @@ class UserInfo {
           await $.wait(this.getRandomTime());
           await this.getResourceCardInfoById();
         } else {
-          console.log("✅ 创建场景资源完毕: " + sceneId);
+          console.log("\u2705 \u521B\u5EFA\u573A\u666F\u8D44\u6E90\u5B8C\u6BD5: " + sceneId);
           return true;
         }
       }
     } catch (_0x19524f) {
       this.ckStatus = false;
-      $.log("⛔️ 创建场景资源失败! " + _0x19524f);
+      $.log("\u26D4\uFE0F \u521B\u5EFA\u573A\u666F\u8D44\u6E90\u5931\u8D25! " + _0x19524f);
     }
   }
   async getGroupItems() {
@@ -825,13 +868,13 @@ class UserInfo {
           list: _0x481aa2
         } = _0xd16b8f?.["data"];
       if (_0x481aa2.length) {
-        $.log("✅ 开始查询库存:");
+        $.log("\u2705 \u5F00\u59CB\u67E5\u8BE2\u5E93\u5B58:");
         for (let _0x307c3b of _0x481aa2) {
-          $.log("🎁 " + _0x307c3b.itemTitle.replace(/【.*?】/g, "") + ": " + _0x307c3b.points + " 分【" + _0x307c3b.statusStr + "】");
+          $.log("\uD83C\uDF81 " + _0x307c3b.itemTitle.replace(/【.*?】/g, "") + ": " + _0x307c3b.points + " \u5206\u3010" + _0x307c3b.statusStr + "\u3011");
         }
       }
     } catch (_0x545477) {
-      $.log("⛔️ 查询待收获积分列表失败! " + _0x545477);
+      $.log("\u26D4\uFE0F \u67E5\u8BE2\u5F85\u6536\u83B7\u79EF\u5206\u5217\u8868\u5931\u8D25! " + _0x545477);
     }
   }
   async interactData() {
@@ -843,7 +886,7 @@ class UserInfo {
       let _0x457c93 = await this.fetch(_0x26bd11);
       return _0x457c93?.["data"];
     } catch (_0x393286) {
-      $.log("⛔️ 查询待收获积分列表失败! " + _0x393286);
+      $.log("\u26D4\uFE0F \u67E5\u8BE2\u5F85\u6536\u83B7\u79EF\u5206\u5217\u8868\u5931\u8D25! " + _0x393286);
     }
   }
   async getUserTotalPendingScore() {
@@ -853,10 +896,10 @@ class UserInfo {
         type: "get"
       };
       let _0x41b85d = await this.fetch(_0x5598d1);
-      $.log("✅ 待领取积分: " + _0x41b85d?.["data"]);
+      $.log("\u2705 \u5F85\u9886\u53D6\u79EF\u5206: " + _0x41b85d?.["data"]);
       return _0x41b85d?.["data"];
     } catch (_0x34f0fb) {
-      $.log("⛔️ 查询待领取积分失败! " + _0x34f0fb);
+      $.log("\u26D4\uFE0F \u67E5\u8BE2\u5F85\u9886\u53D6\u79EF\u5206\u5931\u8D25! " + _0x34f0fb);
     }
   }
   async collect() {
@@ -866,10 +909,10 @@ class UserInfo {
         type: "get"
       };
       let _0x11492a = await this.fetch(_0x172b83);
-      $.log("✅ 收取积分: " + _0x11492a?.["data"]);
+      $.log("\u2705 \u6536\u53D6\u79EF\u5206: " + _0x11492a?.["data"]);
       return _0x11492a?.["data"];
     } catch (_0x24a160) {
-      $.log("⛔️ 收取积分失败! " + _0x24a160);
+      $.log("\u26D4\uFE0F \u6536\u53D6\u79EF\u5206\u5931\u8D25! " + _0x24a160);
     }
   }
   async getUccCsrfToken() {
@@ -889,7 +932,7 @@ class UserInfo {
         _0x1fac20 = JSON.parse(_0x14238b);
       return _0x1fac20.data.uccCsrfToken;
     } catch (_0x2ec754) {
-      $.log("⛔️ 获取UccCsrfToken失败! " + _0x2ec754);
+      $.log("\u26D4\uFE0F \u83B7\u53D6UccCsrfToken\u5931\u8D25! " + _0x2ec754);
     }
   }
 }
@@ -904,7 +947,7 @@ async function getCookie() {
     _0xfab98b = _0x470710.cookie,
     _0x56ddd1 = $.toObj($response.body);
   if (!_0x56ddd1?.["data"]) {
-    $.msg($.name, "⛔️ 获取Cookie失败!", "");
+    $.msg($.name, "\u26D4\uFE0F \u83B7\u53D6Cookie\u5931\u8D25!", "");
     return;
   }
   const {
@@ -921,14 +964,14 @@ async function getCookie() {
   const _0x179a54 = userCookie.findIndex(_0x720b6c => _0x720b6c.userId == _0x471755.userId);
   userCookie[_0x179a54] ? userCookie[_0x179a54] = _0x471755 : userCookie.push(_0x471755);
   $.setjson(userCookie, ckName);
-  $.msg($.name, "🎉" + _0x471755.userName + "更新token成功!", "");
+  $.msg($.name, "\uD83C\uDF89" + _0x471755.userName + "\u66F4\u65B0token\u6210\u529F!", "");
 }
 async function loadModule() {
   try {
     $.Cheerio = await loadCheerio();
     return $.Cheerio ? true : false;
   } catch (_0x27d550) {
-    throw new Error("⛔️ loadModule run error => " + _0x27d550);
+    throw new Error("\u26D4\uFE0F loadModule run error => " + _0x27d550);
   }
 }
 async function checkEnv() {
@@ -937,10 +980,10 @@ async function checkEnv() {
     userCookie = $.toObj(userCookie) || userCookie.split(_0x26b718);
     userList.push(...userCookie.map(_0x9d6b4e => new UserInfo(_0x9d6b4e)).filter(Boolean));
     userCount = userList.length;
-    console.log("共找到" + userCount + "个账号");
+    console.log("\u5171\u627E\u5230" + userCount + "\u4E2A\u8D26\u53F7");
     return true;
   } catch (_0x10560b) {
-    throw new Error("⛔️ checkEnv run error => " + _0x10560b);
+    throw new Error("\u26D4\uFE0F checkEnv run error => " + _0x10560b);
   }
 }
 async function Request(_0x2b27fc) {
@@ -951,7 +994,7 @@ async function Request(_0x2b27fc) {
   }
   try {
     if (!_0x2b27fc?.["url"]) {
-      throw new Error("[发送请求] 缺少 url 参数");
+      throw new Error("[\u53D1\u9001\u8BF7\u6C42] \u7F3A\u5C11 url \u53C2\u6570");
     }
     let {
       url: _0x3b24b0,
@@ -982,10 +1025,10 @@ async function Request(_0x2b27fc) {
         }),
         timeout: _0x1ae11d
       },
-      _0x1a7a4a = $.http[_0x44b822.toLowerCase()](_0x32dc9f).then(_0x3b7b97 => resultType == "data" ? $.toObj(_0x3b7b97.body) || _0x3b7b97.body : $.toObj(_0x3b7b97) || _0x3b7b97).catch(_0x1baccb => $.log("⛔️ 请求发起失败！原因为: " + _0x1baccb));
-    return Promise.race([new Promise((_0x49b7ee, _0x548db5) => setTimeout(() => _0x548db5("当前请求已超时"), _0x1ae11d)), _0x1a7a4a]);
+      _0x1a7a4a = $.http[_0x44b822.toLowerCase()](_0x32dc9f).then(_0x3b7b97 => resultType == "data" ? $.toObj(_0x3b7b97.body) || _0x3b7b97.body : $.toObj(_0x3b7b97) || _0x3b7b97).catch(_0x1baccb => $.log("\u26D4\uFE0F \u8BF7\u6C42\u53D1\u8D77\u5931\u8D25\uFF01\u539F\u56E0\u4E3A: " + _0x1baccb));
+    return Promise.race([new Promise((_0x49b7ee, _0x548db5) => setTimeout(() => _0x548db5("\u5F53\u524D\u8BF7\u6C42\u5DF2\u8D85\u65F6"), _0x1ae11d)), _0x1a7a4a]);
   } catch (_0x381d57) {
-    console.log("⛔️ 请求发起失败！原因为: " + _0x381d57);
+    console.log("\u26D4\uFE0F \u8BF7\u6C42\u53D1\u8D77\u5931\u8D25\uFF01\u539F\u56E0\u4E3A: " + _0x381d57);
   }
 }
 function randomInt(_0x1d8d5b, _0x22188c) {
@@ -1024,17 +1067,17 @@ function ObjectKeys2LowerCase(_0x3bb5b0) {
 async function loadCheerio() {
   let _0x1b24c4 = ($.isNode() ? process.env.Cheerio_code : $.getdata("Cheerio_code")) || "";
   if (_0x1b24c4 && Object.keys(_0x1b24c4).length) {
-    console.log("✅" + $.name + ":缓存中存在Cheerio模块,跳过下载");
+    console.log("\u2705" + $.name + ":\u7F13\u5B58\u4E2D\u5B58\u5728Cheerio\u6A21\u5757,\u8DF3\u8FC7\u4E0B\u8F7D");
     eval(_0x1b24c4);
     return createCheerio();
   }
-  console.log("🚀" + $.name + ":开始下载Cheerio模块");
+  console.log("\uD83D\uDE80" + $.name + ":\u5F00\u59CB\u4E0B\u8F7DCheerio\u6A21\u5757");
   return new Promise(async _0xe53978 => {
     $.getScript("https://mirror.ghproxy.com/https://raw.githubusercontent.com/Yuheng0101/X/main/Utils/cheerio.js").then(_0x1eb03b => {
       $.setdata(_0x1eb03b, "Cheerio_code");
       eval(_0x1eb03b);
       const _0x3ed81b = createCheerio();
-      console.log("✅Cheerio模块加载成功,请继续");
+      console.log("\u2705Cheerio\u6A21\u5757\u52A0\u8F7D\u6210\u529F,\u8BF7\u7EE7\u7EED");
       _0xe53978(_0x3ed81b);
     });
   });
@@ -1044,10 +1087,10 @@ async function loadCheerio() {
     await getCookie();
   } else {
     if (!(await loadModule())) {
-      throw new Error("⛔️ 加载模块失败，请检查模块路径是否正常");
+      throw new Error("\u26D4\uFE0F \u52A0\u8F7D\u6A21\u5757\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u6A21\u5757\u8DEF\u5F84\u662F\u5426\u6B63\u5E38");
     }
     if (!(await checkEnv())) {
-      throw new Error("⛔️ 未检测到ck，请添加环境变量");
+      throw new Error("\u26D4\uFE0F \u672A\u68C0\u6D4B\u5230ck\uFF0C\u8BF7\u6DFB\u52A0\u73AF\u5883\u53D8\u91CF");
     }
     if (userList.length > 0) {
       await main();
@@ -1539,7 +1582,7 @@ function Env(t, e) {
         }
       }
       if (!this.isMuteLog) {
-        let t = ["", "==============📣系统通知📣=============="];
+        let t = ["", "==============\uD83D\uDCE3\u7CFB\u7EDF\u901A\u77E5\uD83D\uDCE3=============="];
         t.push(e);
         s && t.push(s);
         r && t.push(r);
