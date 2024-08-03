@@ -1,4 +1,4 @@
-//Sat Aug 03 2024 06:49:16 GMT+0000 (Coordinated Universal Time)
+//Sat Aug 03 2024 06:55:16 GMT+0000 (Coordinated Universal Time)
 //Base:https://github.com/echo094/decode-js
 //Modify:https://github.com/smallfawn/decode_action
 /*
@@ -34,14 +34,12 @@ hostname = developer.aliyun.com
 */
 // env.js 全局
 const $ = new Env("\u963F\u91CC\u4E91\u793E\u533A\u540C\u6B65\u9752\u9F99"); //脚本名称
-ckName = "aliyunWeb_QL",
 // 调试
 $.is_debug = ($.isNode() ? process.env.IS_DEDUG : $.getdata("is_debug")) || "false";
 // 为通知准备的空数组
 $.notifyMsg = [];
 //青龙配置
-
-var QL = ($.isNode() ? process.env[ckName] : $.getdata(ckName)) || "";
+let QL = ($.isNode() ? process.env.aliyunWeb_QL : $.getjson("aliyunWeb_QL")) || {};
 //---------------------- 自定义函数区 -----------------------------------
 async function getCookie() {
   if (typeof $request === "undefined" || $request.method === "OPTIONS") return;
