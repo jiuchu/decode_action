@@ -1,4 +1,4 @@
-//Thu Feb 13 2025 06:43:35 GMT+0000 (Coordinated Universal Time)
+//Tue Mar 18 2025 15:20:28 GMT+0000 (Coordinated Universal Time)
 //Base:https://github.com/echo094/decode-js
 //Modify:https://github.com/smallfawn/decode_action
 const $ = new Env("伊利-春节");
